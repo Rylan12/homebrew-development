@@ -15,6 +15,8 @@ class DevBottleUnneeded < Formula
   conflicts_with "youtube-dl", because: "both install a `youtube-dl` binary"
 
   def install
+    # Adding a comment
+    # Adding another comment
     system "make", "PREFIX=#{prefix}" if build.head?
     bin.install "youtube-dl"
     man1.install "youtube-dl.1"
