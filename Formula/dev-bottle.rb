@@ -14,6 +14,7 @@ class DevBottle < Formula
   conflicts_with "aescrypt", because: "both install `aescrypt` and `aesget` binaries"
 
   def install
+    # Changing the comment
     system "./configure"
     system "make"
     bin.install "aescrypt", "aesget"
