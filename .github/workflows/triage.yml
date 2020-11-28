@@ -104,7 +104,7 @@ jobs:
                 }, {
                     "label": "automerge-skip",
                     "path": "Formula/(patchelf|binutils).rb",
-                    "remove_if_no_match": false
+                    "keep_if_no_match": true
                 }
             ]
       - name: Check commit format
