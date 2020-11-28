@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Label pull request
-        uses: Homebrew/actions/label-pull-requests@master
+        uses: Rylan12/actions/label-pull-requests@dont-remove-label-option
         if: always()
         with:
           token: ${{ github.token }}
@@ -103,7 +103,8 @@ jobs:
                     "content": "system \"swift\", \"build\""
                 }, {
                     "label": "automerge-skip",
-                    "path": "Formula/(patchelf|binutils).rb"
+                    "path": "Formula/(patchelf|binutils).rb",
+                    "remove_if_no_match": false
                 }
             ]
       - name: Check commit format
