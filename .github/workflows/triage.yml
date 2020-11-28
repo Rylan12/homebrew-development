@@ -107,7 +107,7 @@ jobs:
                 }
             ]
       - name: Check commit format
-        uses: Homebrew/actions/check-commit-format@master
+        uses: Rylan12/actions/check-commit-format@fix-check-commit-format-labels
         if: always()
         with:
           token: ${{ github.token }}
