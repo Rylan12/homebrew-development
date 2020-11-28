@@ -106,8 +106,13 @@ jobs:
                     "path": "Formula/(patchelf|binutils).rb"
                 }
             ]
+      # - name: Check commit format
+        # uses: Homebrew/actions/check-commit-format@master
+        # if: always()
+        # with:
+          # token: ${{ github.token }}
       - name: Check commit format
-        uses: Homebrew/actions/check-commit-format@master
+        uses: Rylan12/actions/check-commit-format@fix-gh-labels
         if: always()
         with:
           token: ${{ github.token }}
