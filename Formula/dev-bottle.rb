@@ -13,6 +13,8 @@ class DevBottle < Formula
 
   conflicts_with "aescrypt", because: "both install `aescrypt` and `aesget` binaries"
 
+  depends_on "ruby"
+
   def install
     system "./configure"
     system "make"
