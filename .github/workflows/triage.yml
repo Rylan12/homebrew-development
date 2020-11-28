@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Label pull request
-        uses: Homebrew/actions/label-pull-requests@master
+        uses: Rylan12/actions/label-pull-requests@fix-gh-labels
         if: always()
         with:
           token: ${{ github.token }}
