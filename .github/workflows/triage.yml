@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Label pull request
-        uses: Rylan12/actions/label-pull-requests@dont-remove-label-option
+        uses: Rylan12/actions/label-pull-requests@get-labels-correctly
         if: always()
         with:
           token: ${{ github.token }}
@@ -108,7 +108,7 @@ jobs:
                 }
             ]
       - name: Check commit format
-        uses: Homebrew/actions/check-commit-format@master
+        uses: Rylan12/actions/check-commit-format@get-labels-correctly
         if: always()
         with:
           token: ${{ github.token }}
