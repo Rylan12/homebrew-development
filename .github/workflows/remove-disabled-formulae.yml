@@ -25,7 +25,7 @@ jobs:
 
       - name: Remove disabled formulae
         id: remove_disabled
-        uses: Rylan12/actions/remove-disabled-formulae@remove-disabled-formulae
+        uses: Rylan12/actions/remove-disabled-formulae@add-remove-disabled-formulae
 
       - name: Create pull request
         if: ${{ steps.remove_disabled.outputs.formulae-removed == 'true' }}
