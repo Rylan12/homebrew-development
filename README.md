@@ -1,6 +1,6 @@
 # Rylan12 Development
 
-Test formulae for Homebrew development
+Test formulae and tools for Homebrew development
 
 ## How do I install these formulae?
 `brew install rylan12/development/<formula>`
