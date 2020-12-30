@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "english"
-
 module Homebrew
   module_function
 
@@ -16,6 +14,8 @@ module Homebrew
                   description: "Pass the `--fix` option to `brew style`."
       switch      "--skip-style",
                   description: "Don't run `brew style`."
+      switch      "--skip-test",
+                  description: "Don't run `brew test`."
       switch      "--skip-audit",
                   description: "Don't run `brew audit`."
       comma_array "--audit-flags=",
@@ -47,6 +47,8 @@ module Homebrew
 
     formula_installed = formula.any_version_installed?
 
+    require_relative "../lib/check"
+
     # As this command is simplifying user-run commands then let's just use a
     # user path, too.
     ENV["PATH"] = ENV["HOMEBREW_PATH"]
@@ -56,20 +58,22 @@ module Homebrew
     uninstall_formula = !formula_installed && !args.keep_formula?
 
     # uninstall formula if needed
-    run_brew_command %W[uninstall --ignore-dependencies #{formula.name}], exit_on_failure: true if formula_installed
+    if formula_installed
+      Check.run_brew_command %W[uninstall --ignore-dependencies #{formula.name}], exit_on_failure: true
+    end
 
     # brew style <formula>
     style_command = %w[style]
     style_command << "--fix" if args.fix?
     style_command << formula.name
-    if !args.skip_style? && !run_brew_command(style_command)
+    if !args.skip_style? && !Check.run_brew_command(style_command)
       continue = false unless args.continue_on_failure?
       failures << style_command
     end
 
     # brew install --only-dependencies <formula>
     install_deps_command = %W[install --only-dependencies #{formula.name}]
-    if continue && !run_brew_command(install_deps_command)
+    if continue && !Check.run_brew_command(install_deps_command)
       continue = false
       uninstall_formula = false
       failures << install_deps_command
@@ -77,7 +81,7 @@ module Homebrew
 
     # brew install --build-from-source <formula>
     install_command = %W[install --build-from-source #{formula.name}]
-    if continue && !run_brew_command(install_command)
+    if continue && !Check.run_brew_command(install_command)
       continue = false
       uninstall_formula = false
       failures << install_command
@@ -85,7 +89,7 @@ module Homebrew
 
     # brew test <formula>
     test_command = %W[test #{formula.name}]
-    if continue && !run_brew_command(test_command)
+    if continue && !args.skip_test? && !Check.run_brew_command(test_command)
       continue = false unless args.continue_on_failure?
       failures << test_command
     end
@@ -94,7 +98,7 @@ module Homebrew
     audit_command = %w[audit --skip-style]
     audit_command += args.audit_flags&.map { |flag| "--#{flag}" } || %w[--strict --online --git]
     audit_command << formula.name
-    if continue && !args.skip_audit && !run_brew_command(audit_command)
+    if continue && !args.skip_audit? && !Check.run_brew_command(audit_command)
       continue = false unless args.continue_on_failure?
       failures << audit_command
     end
@@ -106,9 +110,7 @@ module Homebrew
 
     # brew uninstall <formula>
     uninstall_command = %W[uninstall #{formula.name}]
-    if uninstall_formula && !run_brew_command(uninstall_command)
-      failures << uninstall_command
-    end
+    failures << uninstall_command if uninstall_formula && !Check.run_brew_command(uninstall_command)
 
     # brew uninstall <formula-deps>
     if args.uninstall_dependencies?
@@ -116,7 +118,7 @@ module Homebrew
       uninstall_formula_deps_command = %w[uninstall]
       uninstall_formula_deps_command += removable_formulae.map(&:name) & formula_deps
       if uninstall_formula_deps_command.count > 1 &&
-         !run_brew_command(uninstall_formula_deps_command)
+         !Check.run_brew_command(uninstall_formula_deps_command)
         failures << uninstall_formula_deps_command
       end
     end
@@ -126,7 +128,7 @@ module Homebrew
       return
     end
 
-    display_failure_message failures
+    Check.display_failure_message failures
     Homebrew.failed = true
   end
 
@@ -138,33 +140,5 @@ module Homebrew
     removable += removable_formulae(formulae - removable) if removable.present?
 
     removable
-  end
-
-  def run_brew_command(command, exit_on_failure: false, failures: [])
-    ohai "brew #{command.join(" ")}"
-
-    system HOMEBREW_BREW_FILE, *command
-
-    if $CHILD_STATUS.success?
-      puts
-      return true
-    end
-
-    if exit_on_failure
-      display_failure_message(failures + [command])
-      exit 1
-    else
-      onoe "`brew #{command.join(" ")}` failed!"
-      puts
-      false
-    end
-  end
-
-  def display_failure_message(failures)
-    puts <<~MESSAGE
-      #{Formatter.headline("Failure!", color: :red)}
-      The following #{"command".pluralize failures.count} failed:
-        #{failures.map { |command| "brew #{command.join(" ")}" }.join("\n  ")}
-    MESSAGE
   end
 end

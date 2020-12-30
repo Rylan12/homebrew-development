@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "english"
-
 module Homebrew
   module_function
 
@@ -45,32 +43,39 @@ module Homebrew
 
     raise ArgumentError, "`--fix` cannot be passed unless style checks are being run." if !run_style && args.fix?
 
+    require_relative "../lib/check"
+
     # As this command is simplifying user-run commands then let's just use a
     # user path, too.
     ENV["PATH"] = ENV["HOMEBREW_PATH"]
 
     failures = []
 
-    style_check = "style"
-    style_check += " --fix" if args.fix?
-    failures << style_check if run_style && !run_check(style_check, exit_on_failure: args.exit_on_failure?)
+    style_command = %w[style]
+    style_command << "--fix" if args.fix?
+    if run_style && !Check.run_brew_command(style_command, exit_on_failure: args.exit_on_failure?)
+      failures << style_command
+    end
 
-    failures << "typecheck" if run_typecheck && !run_check("typecheck", exit_on_failure: args.exit_on_failure?)
+    typecheck_command = %w[typecheck]
+    if run_typecheck && !Check.run_brew_command(typecheck_command, exit_on_failure: args.exit_on_failure?)
+      failures << typecheck_command
+    end
 
-    failures << "man" if run_man && !run_check("man", exit_on_failure: args.exit_on_failure?)
+    man_command = %w[man]
+    failures << man_command if run_man && !Check.run_brew_command(man_command, exit_on_failure: args.exit_on_failure?)
 
-    failures << "tests" if run_tests && !run_check("tests", exit_on_failure: args.exit_on_failure?)
+    tests_command = %w[tests]
+    if run_tests && !Check.run_brew_command(tests_command, exit_on_failure: args.exit_on_failure?)
+      failures << tests_command
+    end
 
     if failures.empty?
       oh1 "Success!"
       return
     end
 
-    puts <<~MESSAGE
-      #{Formatter.headline("Failure!", color: :red)}
-      The following #{"command".pluralize failures.count} failed:
-        #{failures.map { |command| "brew #{command}" }.join("\n")}
-    MESSAGE
+    Check.display_failure_message failures
     Homebrew.failed = true
   end
 
@@ -80,25 +85,6 @@ module Homebrew
       false
     else
       default
-    end
-  end
-
-  def run_check(check, exit_on_failure: false)
-    ohai "brew #{check}"
-
-    system HOMEBREW_BREW_FILE, check
-
-    if $CHILD_STATUS.success?
-      puts
-      return true
-    end
-
-    if exit_on_failure
-      odie "`brew #{check}` failed!"
-    else
-      onoe "`brew #{check}` failed!"
-      puts
-      false
     end
   end
 end
