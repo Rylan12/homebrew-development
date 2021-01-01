@@ -110,7 +110,9 @@ module Homebrew
 
     # brew uninstall <formula>
     uninstall_command = %W[uninstall #{formula.name}]
-    failures << uninstall_command if uninstall_formula && !Check.run_brew_command(uninstall_command)
+    if uninstall_formula && formula.any_version_installed? && !Check.run_brew_command(uninstall_command)
+      failures << uninstall_command
+    end
 
     # brew uninstall <formula-deps>
     if args.uninstall_dependencies?
