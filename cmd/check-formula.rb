@@ -63,7 +63,7 @@ module Homebrew
     end
 
     # brew style <formula>
-    style_command = %w[style]
+    style_command = %w[style --display-cop-names]
     style_command << "--fix" if args.fix?
     style_command << formula.name
     if !args.skip_style? && !Check.run_brew_command(style_command)

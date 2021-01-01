@@ -51,7 +51,7 @@ module Homebrew
 
     failures = []
 
-    style_command = %w[style]
+    style_command = %w[style --display-cop-names]
     style_command << "--fix" if args.fix?
     if run_style && !Check.run_brew_command(style_command, exit_on_failure: args.exit_on_failure?)
       failures << style_command
