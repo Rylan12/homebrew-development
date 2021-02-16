@@ -5,9 +5,7 @@ module Homebrew
 
   def check_args
     Homebrew::CLI::Parser.new do
-      usage_banner <<~EOS
-        `check` [<options>]
-
+      description <<~EOS
         Run the various checks needed before opening a PR in the Homebrew/brew repository.
       EOS
       switch      "-t", "--tests",
@@ -22,6 +20,8 @@ module Homebrew
                   description: "Don't run the specified checks. Options are `style`, `typecheck`, or `man`."
 
       conflicts "only", "except"
+
+      named_args :none
     end
   end
 

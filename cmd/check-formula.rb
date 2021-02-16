@@ -5,9 +5,7 @@ module Homebrew
 
   def check_formula_args
     Homebrew::CLI::Parser.new do
-      usage_banner <<~EOS
-        `check-formula` [<options>] <formula>
-
+      description <<~EOS
         Run the various checks needed on <formula> before opening a PR in the Homebrew/homebrew-core repository.
       EOS
       switch      "-f", "--fix",
@@ -32,7 +30,7 @@ module Homebrew
       conflicts "audit-flags", "skip-audit"
       conflicts "keep-formula", "uninstall-dependencies"
 
-      named :formula
+      named_args :formula, number: 1
     end
   end
 
