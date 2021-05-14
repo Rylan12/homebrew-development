@@ -15,10 +15,10 @@ module Homebrew
       switch      "--exit-on-failure",
                   description: "Exit if a single check fails instead of running all checks."
       flag        "--only=",
-                  description: "Run only the specified command. Options are `style`, `typecheck`, " \
+                  description: "Run only the specified command. Options are `style`, `vale`, `typecheck`, " \
                                "`generate-man-completions`, or `tests`."
       comma_array "--except=",
-                  description: "Don't run the specified checks. Options are `style`, `typecheck`, " \
+                  description: "Don't run the specified checks. Options are `style`, `vale`, `typecheck`, " \
                                "or `generate-man-completions`."
 
       conflicts "only", "except"
@@ -30,15 +30,18 @@ module Homebrew
   def check
     args = check_args.parse
 
-    if args.only && %w[style typecheck generate-man-completions tests].exclude?(args.only)
-      raise ArgumentError, "`--only` must be either `style`, `typecheck`, `generate-man-completions`, or `tests`."
+    if args.only && %w[style vale typecheck generate-man-completions tests].exclude?(args.only)
+      raise ArgumentError,
+            "`--only` must be either `style`, `vale`, `typecheck`, `generate-man-completions`, or `tests`."
     end
 
-    if args.except&.any? { |check| %w[style typecheck generate-man-completions].exclude?(check) }
-      raise ArgumentError, "`--except` must only contain `style`, `typecheck`, and/or `generate-man-completions`."
+    if args.except&.any? { |check| %w[style vale typecheck generate-man-completions].exclude?(check) }
+      raise ArgumentError,
+            "`--except` must only contain `style`, `vale`, `typecheck`, and/or `generate-man-completions`."
     end
 
     run_style = run_check?("style", args: args)
+    run_vale = run_check?("vale", args: args)
     run_typecheck = run_check?("typecheck", args: args)
     run_man = run_check?("generate-man-completions", args: args)
     run_tests = args.tests? || run_check?("tests", args: args, default: false)
@@ -57,6 +60,11 @@ module Homebrew
     style_command << "--fix" if args.fix?
     if run_style && !Check.run_brew_command(style_command, exit_on_failure: args.exit_on_failure?)
       failures << style_command
+    end
+
+    vale_command = %W[vale #{HOMEBREW_REPOSITORY}/docs]
+    if run_vale && !Check.run_shell_command(vale_command, exit_on_failure: args.exit_on_failure?)
+      failures << vale_command
     end
 
     typecheck_command = %w[typecheck]
