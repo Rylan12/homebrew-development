@@ -36,9 +36,11 @@ repository.
       --exit-on-failure            Exit if a single check fails instead of
                                    running all checks.
       --only                       Run only the specified command. Options are
-                                   style, typecheck, man, or tests.
+                                   style, vale, typecheck,
+                                   generate-man-completions, or tests.
       --except                     Don't run the specified checks. Options are
-                                   style, typecheck, or man.
+                                   style, vale, typecheck, or
+                                   generate-man-completions.
   -d, --debug                      Display any debugging information.
   -q, --quiet                      Make some output more quiet.
   -v, --verbose                    Make some output more verbose.
@@ -77,7 +79,53 @@ Homebrew/homebrew-core repository.
 
 ## Formulae
 
-So far I have no formulae in this tap.
+### `relocation-testing`
+
+This formula is designed to be used to test some of the keg and bottle relocation features.
+
+To prepare this formula for testing, install using:
+
+```
+brew install --verbose --build-bottle rylan12/development/relocation-testing
+```
+
+Then, create a bottle using (to test RPATH relocation, first run `export HOMEBREW_RELOCATE_RPATHS=1`):
+
+```
+brew bottle --verbose --json --only-json-tab rylan12/development/relocation-testing
+```
+
+The formula contains two `dylib` files (`libfoo.dylib` and `libbar.dylib`) in its `lib` directory. To verify that RPATH relocation has occurred successfully, extract the bottle archive and ensure the following commands return the expected outputs (run in `lib` directory):
+
+```console
+$ otool -L *
+libbar.dylib:
+        @@HOMEBREW_PREFIX@@/opt/relocation-testing/lib/libbar.dylib (compatibility version 0.0.0, current version 0.0.0)
+        @@HOMEBREW_PREFIX@@/opt/llvm/lib/libLLVM.dylib (compatibility version 1.0.0, current version 12.0.0)
+        /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1292.100.5)
+libfoo.dylib:
+        @@HOMEBREW_PREFIX@@/opt/relocation-testing/lib/libfoo.dylib (compatibility version 0.0.0, current version 0.0.0)
+        @@HOMEBREW_PREFIX@@/opt/llvm/lib/libLLVM.dylib (compatibility version 1.0.0, current version 12.0.0)
+        @loader_path/libbar.dylib (compatibility version 0.0.0, current version 0.0.0)
+        /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1292.100.5)
+
+$ otool -l * | rg -A2 LC_RPATH
+          cmd LC_RPATH
+      cmdsize 48
+         path @@HOMEBREW_PREFIX@@/opt/llvm/lib (offset 12)
+--
+          cmd LC_RPATH
+      cmdsize 32
+         path @loader_path/ (offset 12)
+--
+          cmd LC_RPATH
+      cmdsize 48
+         path @@HOMEBREW_PREFIX@@/opt/llvm/lib (offset 12)
+--
+          cmd LC_RPATH
+      cmdsize 32
+         path @loader_path/ (offset 12)
+```
 
 ### How do I install these formulae?
 `brew install rylan12/development/<formula>`
