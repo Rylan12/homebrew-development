@@ -6,6 +6,12 @@ class RelocationTesting < Formula
   sha256 "7bcbfbcfad89fa1968668e5b3801495578f10456c01dc3fdcac3a641a5ce800a"
   license "GPL-3.0-or-later"
 
+  bottle do
+    root_url "https://github.com/Rylan12/homebrew-development/releases/download/relocation-testing-1.0.0"
+    sha256                               catalina:     "407ebb3fea7b877275643de764d7c06ae2728389f4a73745e4418ee148da7c3d"
+    sha256 cellar: :any_skip_relocation, x86_64_linux: "312ce58397c291a7309a3534dbd07cee4fe539d43f0781d85087c4f7d7adc1d8"
+  end
+
   depends_on "llvm"
 
   def install
