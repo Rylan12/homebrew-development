@@ -41,7 +41,7 @@ module Check
     puts <<~MESSAGE
       #{Formatter.headline("Failure!", color: :red)}
       The following #{"command".pluralize failures.count} failed:
-        #{formatted_failures.join("\n  ")}
+        #{formatted_failures.map { |cmd| "brew #{cmd}" }.join("\n  ")}
     MESSAGE
   end
 end
