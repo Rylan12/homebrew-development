@@ -91,7 +91,7 @@ module Homebrew
 
   def run_check?(check, args:, default: true)
     if args.except&.any?(check) ||
-       args.only && args.only != check
+       (args.only && args.only != check)
       false
     else
       default
