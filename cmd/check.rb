@@ -62,7 +62,7 @@ module Homebrew
       failures << style_command
     end
 
-    vale_command = %W[vale #{HOMEBREW_REPOSITORY}/docs/]
+    vale_command = %W[vale --config #{HOMEBREW_REPOSITORY}/.vale.ini #{HOMEBREW_REPOSITORY}/docs/]
     if run_vale && !Check.run_shell_command(vale_command, exit_on_failure: args.exit_on_failure?)
       failures << vale_command
     end
