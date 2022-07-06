@@ -23,7 +23,12 @@ module Homebrew
     Formula.all.sort_by(&:name).each do |formula|
       next unless formula.tap.core_tap?
 
-      puts "  #{formula.name.inspect}: #{formula.recursive_dependencies.map(&:name).sort.inspect},"
+      puts "  #{formula.name.inspect}: {"
+      puts "    \"deps\": #{formula.deps.map(&:name).sort.inspect},"
+      puts "    \"requirements\": #{formula.requirements.map(&:inspect).sort.inspect},"
+      puts "    \"patchlist\": #{formula.patchlist.map(&:inspect).sort.inspect},"
+      puts "    \"fails_with\": #{formula.stable.compiler_failures.map(&:inspect).sort.inspect}"
+      puts "  },"
     end
 
     puts "}"
