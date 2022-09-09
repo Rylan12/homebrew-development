@@ -73,7 +73,7 @@ module Homebrew
     end
 
     man_command = %w[generate-man-completions]
-    failures << man_command if run_man && !Check.run_brew_command(man_command, exit_on_failure: args.exit_on_failure?)
+    Check.run_brew_command(man_command, ignore_failure: true) if run_man
 
     tests_command = %w[tests]
     if run_tests && !Check.run_brew_command(tests_command, exit_on_failure: args.exit_on_failure?)

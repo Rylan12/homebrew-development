@@ -5,18 +5,18 @@ require "english"
 module Check
   module_function
 
-  def run_brew_command(command, exit_on_failure: false, failures: [])
+  def run_brew_command(command, exit_on_failure: false, ignore_failure: false, failures: [])
     command = [HOMEBREW_BREW_FILE.to_s, *command]
-    run_shell_command command, exit_on_failure: exit_on_failure, failures: failures
+    run_shell_command command, exit_on_failure: exit_on_failure, ignore_failure: ignore_failure, failures: failures
   end
 
-  def run_shell_command(command, exit_on_failure: false, failures: [])
+  def run_shell_command(command, exit_on_failure: false, ignore_failure: false, failures: [])
     command_string = "#{File.basename(command[0])} #{command[1..].join(" ")}"
     ohai command_string
 
     system(*command)
 
-    if $CHILD_STATUS.success?
+    if $CHILD_STATUS.success? || ignore_failure
       puts
       return true
     end
