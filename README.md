@@ -1,5 +1,10 @@
 # Homebrew Development
 
+> [!WARNING]
+> I have moved `brew check` and `brew move-cask-core` to my personal tap, [rylan12/personal](https://github.com/Rylan12/homebrew-personal).
+> I don't currently use the remaining formulae/commands so I have archived the repository.
+> In the future, if I start to use the remaining items, I will migrate them to [rylan12/personal](https://github.com/Rylan12/homebrew-personal) and fix them there.
+
 Test formulae and tools for Homebrew development
 
 Run the following command to have access to these formulae and tools:
